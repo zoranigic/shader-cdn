@@ -27,6 +27,15 @@
       "thumbnailTime": 3.0,
       "version": 1,
       "addedDate": "2026-01-05"
+    },
+    {
+      "id": "falling_hearts",
+      "name": "Falling Hearts",
+      "category": "love",
+      "file": "shaders/falling_hearts.glsl",
+      "thumbnailTime": 2.0,
+      "version": 1,
+      "addedDate": "2026-01-05"
     }
   ]
 }
