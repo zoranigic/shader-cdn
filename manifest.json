@@ -1,12 +1,13 @@
 {
   "version": 1,
-  "lastUpdated": "2026-01-05T22:30:00Z",
+  "lastUpdated": "2026-01-05T23:00:00Z",
   "categories": [
     { "id": "abstract", "name": "Abstract" },
     { "id": "nature", "name": "Nature" },
     { "id": "space", "name": "Space" },
     { "id": "artistic", "name": "Artistic" },
-    { "id": "anime", "name": "Anime" }
+    { "id": "anime", "name": "Anime" },
+    { "id": "love", "name": "Love" }
   ],
   "shaders": [
     {
@@ -15,6 +16,15 @@
       "category": "anime",
       "file": "shaders/mona_anime.glsl",
       "thumbnailTime": 2.0,
+      "version": 1,
+      "addedDate": "2026-01-05"
+    },
+    {
+      "id": "heart_lightning",
+      "name": "Heart Lightning",
+      "category": "love",
+      "file": "shaders/heart_lightning.glsl",
+      "thumbnailTime": 3.0,
       "version": 1,
       "addedDate": "2026-01-05"
     }
