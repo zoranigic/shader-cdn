@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "lastUpdated": "2026-01-05T23:00:00Z",
+  "version": 2,
+  "lastUpdated": "2026-01-06T15:00:00Z",
   "categories": [
     { "id": "abstract", "name": "Abstract" },
     { "id": "nature", "name": "Nature" },
@@ -36,6 +36,15 @@
       "thumbnailTime": 2.0,
       "version": 1,
       "addedDate": "2026-01-05"
+    },
+    {
+      "id": "circle_waves",
+      "name": "Circle Waves",
+      "category": "abstract",
+      "file": "shaders/circle_waves.glsl",
+      "thumbnailTime": 3.0,
+      "version": 1,
+      "addedDate": "2026-01-06"
     }
   ]
 }

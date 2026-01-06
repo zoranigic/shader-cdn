@@ -1,0 +1,151 @@
+name: Notify New Shaders
+
+on:
+  push:
+    branches:
+      - main
+      - test
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to detect changes
+
+      - name: Set environment
+        id: env
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "topic=new_shaders" >> $GITHUB_OUTPUT
+            echo "env_name=production" >> $GITHUB_OUTPUT
+          else
+            echo "topic=new_shaders_debug" >> $GITHUB_OUTPUT
+            echo "env_name=test" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for new shaders
+        id: check_shaders
+        run: |
+          # Get current manifest
+          CURRENT_SHADERS=$(jq -r '.shaders[].id' manifest.json | sort)
+
+          # Get previous manifest (from previous commit)
+          git show HEAD~1:manifest.json > /tmp/old_manifest.json 2>/dev/null || echo '{"shaders":[]}' > /tmp/old_manifest.json
+          PREVIOUS_SHADERS=$(jq -r '.shaders[].id' /tmp/old_manifest.json | sort)
+
+          # Find new shaders
+          NEW_SHADERS=$(comm -23 <(echo "$CURRENT_SHADERS") <(echo "$PREVIOUS_SHADERS"))
+
+          if [ -n "$NEW_SHADERS" ]; then
+            echo "has_new=true" >> $GITHUB_OUTPUT
+
+            # Get names of new shaders
+            NEW_COUNT=$(echo "$NEW_SHADERS" | wc -l)
+            NEW_NAMES=$(echo "$NEW_SHADERS" | while read id; do
+              jq -r --arg id "$id" '.shaders[] | select(.id == $id) | .name' manifest.json
+            done | head -3 | tr '\n' ', ' | sed 's/,$//')
+
+            echo "count=$NEW_COUNT" >> $GITHUB_OUTPUT
+            echo "names=$NEW_NAMES" >> $GITHUB_OUTPUT
+            echo "Found $NEW_COUNT new shader(s): $NEW_NAMES"
+          else
+            echo "has_new=false" >> $GITHUB_OUTPUT
+            echo "No new shaders found"
+          fi
+
+      - name: Setup Node.js
+        if: steps.check_shaders.outputs.has_new == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Send FCM Notification
+        if: steps.check_shaders.outputs.has_new == 'true'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SHADER_COUNT: ${{ steps.check_shaders.outputs.count }}
+          SHADER_NAMES: ${{ steps.check_shaders.outputs.names }}
+          FCM_TOPIC: ${{ steps.env.outputs.topic }}
+          ENV_NAME: ${{ steps.env.outputs.env_name }}
+        run: |
+          # Install google-auth-library for OAuth token
+          npm install google-auth-library
+
+          # Create Node.js script for FCM v1 API
+          cat > send_notification.js << 'SCRIPT'
+          const { GoogleAuth } = require('google-auth-library');
+
+          async function sendNotification() {
+            const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+            const projectId = serviceAccount.project_id;
+            const topic = process.env.FCM_TOPIC;
+            const shaderCount = process.env.SHADER_COUNT;
+            const shaderNames = process.env.SHADER_NAMES;
+            const envName = process.env.ENV_NAME;
+
+            const title = shaderCount === '1'
+              ? 'New Wallpaper Available!'
+              : `${shaderCount} New Wallpapers!`;
+            const body = `Check out: ${shaderNames}`;
+
+            // Get OAuth token
+            const auth = new GoogleAuth({
+              credentials: serviceAccount,
+              scopes: ['https://www.googleapis.com/auth/firebase.messaging']
+            });
+            const accessToken = await auth.getAccessToken();
+
+            // FCM v1 API endpoint
+            const url = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+
+            const message = {
+              message: {
+                topic: topic,
+                notification: {
+                  title: title,
+                  body: body
+                },
+                data: {
+                  shader_count: shaderCount,
+                  click_action: 'OPEN_MAIN_ACTIVITY'
+                },
+                android: {
+                  notification: {
+                    sound: 'default'
+                  }
+                }
+              }
+            };
+
+            console.log(`Sending notification to topic: ${topic} (${envName})`);
+
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(message)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              console.log(`Notification sent to ${envName} devices!`);
+              console.log('Response:', JSON.stringify(result));
+            } else {
+              console.error('FCM Error:', JSON.stringify(result));
+              process.exit(1);
+            }
+          }
+
+          sendNotification().catch(err => {
+            console.error('Error:', err);
+            process.exit(1);
+          });
+          SCRIPT
+
+          node send_notification.js
