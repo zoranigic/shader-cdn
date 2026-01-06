@@ -56,10 +56,10 @@
       "addedDate": "2026-01-06"
     },
     {
-      "id": "flow_field",
-      "name": "Flow Field",
+      "id": "fire_path",
+      "name": "Fire Path",
       "category": "abstract",
-      "file": "shaders/flow_field.glsl",
+      "file": "shaders/fire_path.glsl",
       "thumbnailTime": 2.0,
       "version": 1,
       "addedDate": "2026-01-06"
