@@ -1,6 +1,6 @@
 {
-  "version": 5,
-  "lastUpdated": "2026-01-06T19:30:00Z",
+  "version": 6,
+  "lastUpdated": "2026-01-06T20:00:00Z",
   "categories": [
     { "id": "abstract", "name": "Abstract" },
     { "id": "nature", "name": "Nature" },
@@ -47,11 +47,11 @@
       "addedDate": "2026-01-06"
     },
     {
-      "id": "anime_ninja_chakra",
-      "name": "Ninja Chakra",
-      "category": "anime",
-      "file": "shaders/anime_ninja_chakra.glsl",
-      "thumbnailTime": 2.0,
+      "id": "color_flow",
+      "name": "Color Flow",
+      "category": "abstract",
+      "file": "shaders/color_flow.glsl",
+      "thumbnailTime": 3.0,
       "version": 1,
       "addedDate": "2026-01-06"
     },
