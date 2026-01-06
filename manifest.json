@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "lastUpdated": "2026-01-06T22:50:00Z",
   "categories": [
     { "id": "abstract", "name": "Abstract" },
@@ -60,15 +60,6 @@
       "name": "Fire Path",
       "category": "abstract",
       "file": "shaders/fire_path.glsl",
-      "thumbnailTime": 2.0,
-      "version": 2,
-      "addedDate": "2026-01-06"
-    },
-    {
-      "id": "flame_3d",
-      "name": "3D Flame",
-      "category": "abstract",
-      "file": "shaders/flame_3d.glsl",
       "thumbnailTime": 2.0,
       "version": 2,
       "addedDate": "2026-01-06"
