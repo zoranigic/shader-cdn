@@ -197,12 +197,12 @@ void mainImage(out vec4 Q, in vec2 U) {
 
 //!IMAGE
 // Final output - display the chain
-// iChannel0 = Buffer A (not used)
+// iChannel0 = Buffer A (particle positions)
 // iChannel1 = Buffer B (distance field)
-
-#define B(U) texture2D(iChannel1, (U)/R)
 
 void mainImage(out vec4 Q, in vec2 U) {
     vec2 R = iResolution;
-    Q = B(U).zzzz;
+
+    // DEBUG TEST 1: Simple gradient - if this works, rendering pipeline is OK
+    Q = vec4(U.x/R.x, U.y/R.y, 0.5, 1.0);
 }
