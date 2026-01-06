@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "lastUpdated": "2026-01-06T17:10:00Z",
+  "version": 5,
+  "lastUpdated": "2026-01-06T19:30:00Z",
   "categories": [
     { "id": "abstract", "name": "Abstract" },
     { "id": "nature", "name": "Nature" },
@@ -61,7 +61,7 @@
       "category": "abstract",
       "file": "shaders/fire_path.glsl",
       "thumbnailTime": 2.0,
-      "version": 1,
+      "version": 2,
       "addedDate": "2026-01-06"
     }
   ]

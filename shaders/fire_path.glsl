@@ -1,5 +1,8 @@
-// Fire Path - Interactive flow field with touch
+#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+#else
+precision mediump float;
+#endif
 
 // inputs
 uniform vec2 resolution;
@@ -9,9 +12,10 @@ uniform sampler2D noise;
 uniform int pointerCount;
 uniform vec3 pointers[10];
 uniform float startRandom;
-uniform float detail;
+uniform vec3 gravity;
+uniform vec3 linear;
 
-// constants
+// comstants
 const float PI = 3.1415;
 const float PI2 = 2.0 * PI;
 
@@ -28,7 +32,17 @@ float vecToAngle(vec2 v) {
     return atan(v.x, v.y);
 }
 float noise2(vec2 p) {
-    return 0.5 + 0.5 * sin(15.0 * p.x) + sin(10.0 * p.y);
+    return 0.5 + 0.5 * sin(15.0 * p.x) + sin(10.0 * p.y);;
+    const int STEPS = 3;
+    const float DIV = 1.0 / float(STEPS + 1);
+    float n = texture2D(noise, p).r * DIV;
+    for (int i = 0; i < STEPS; ++i) {
+        n += texture2D(noise, p + 0.0001 * angleToVec(PI2 * float(i) * DIV)).r * DIV;
+    }
+    return n;
+}
+float step(float v, float s) {
+    return float(int(v / s)) * s;
 }
 float sin01(float v) {
     return 0.5 + 0.5 * sin(v);
@@ -58,8 +72,7 @@ void main(void) {
     flow = max(flow, 0.0);
 
     // touch
-    for (int i = 0; i < 10; ++i) {
-        if (i >= pointerCount) break;
+    for (int i = 0; i < pointerCount; ++i) {
         float dist = distance(xy, pointers[i].xy / mxy);
         flow += pow(1.0 - min(1.0, max(0.0, 2.0 * dist)), 30.0);
     }
@@ -76,7 +89,7 @@ void main(void) {
     color += 0.1 * (a > 8.9 && a < 9.2 ? 1.0 : 0.0);
     color += 0.1 * (a > 4.0 && a < 4.3 ? 1.0 : 0.0);
 
-    // noise grain
+    // noise
     color += 0.1 * (texture2D(noise, 10.0 * uv).r - 0.5);
 
     // misc
